@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Polygoner</title>
+
+    <style>
+
+        /* Create five equal columns that floats next to each other */
+        .column {
+            float: left;
+            width: 14%;
+            padding: 10px;
+            padding-left: 30px;
+            height: 110px;
+            background-color: dimgrey;
+            border: white;
+            border-style: solid;
+
+        }
+
+
+    </style>
+
+    <!-- bootstrap  -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+
+    <!--using google CDN for jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+</head>
+<body>
+
+
+<div class="row">
+    <div class="column" style="border-style: none; ">
+        <h4 style="color: white; position: center"> Transiasjon</h4>
+        <p style="padding-left: 15px">
+            <input type="button" class="btn btn-success" value=" Aktiver " id="newtrans">
+        </p>
+
+
+    </div>
+
+    <div class="column">
+        <h5 style="color: white"> Fortsett å tegne </h5>
+
+        <input type="button" class="btn btn-success" value="Aktiver" id="draw">
+
+
+    </div>
+    <div class="column">
+        <h5 style="color: white">Skalering (scroll) </h5>
+        <input type="button" class="btn btn-primary" value="Aktiver" id="newscale">
+
+    </div>
+
+
+    <div class="column">
+        <h5 style="color: white">Rotasjon </h5>
+        <button class="btn btn-warning" onclick="rotate()">Roter</button>
+        <form onchange="degrees_to_radians()">
+            <label style="color: white"> Roter med </label>
+            <select id="degrees">
+                <option>0</option>
+                <option>30</option>
+                <option>60</option>
+                <option>90</option>
+                <option>120</option>
+                <option>180</option>
+                <option>360</option>
+
+            </select>
+
+        </form>
+    </div>
+
+    <div class="column">
+
+        <input type="button" class="btn btn-danger" value="Nytt Polygon" id="newpoly">
+
+
+    </div>
+
+
+</div>
+
+<div class="row">
+
+    <div class="column" style="height: 140px; border-style: none;">
+        <p style="padding-left: 30px"><input type="button" class="btn btn-info" style="padding-left: 10px" value="up"
+                                             id="up"></p>
+        <p></p>
+        <input type="button" class="btn btn-info" value=" left " id="left">
+        <input type="button" class="btn btn-info" value=" right " id="right">
+        <p></p>
+        <p style="padding-left: 22px"><input type="button" class="btn btn-info" style="padding-left: 8px" value="down"
+                                             id="down"></p>
+
+    </div>
+
+    <canvas id="MyCanvas" width="690" height="500" style="border: 1px solid black; background-color: black">
+    </canvas>
+
+</div>
+
+
+<script>
+
+
+    //-----------------Global var-----------------------
+    var canvas = document.getElementById("MyCanvas");
+    var ctx = canvas.getContext("2d");
+    var list_points = [];
+    var start = false;
+    var drawP = false;
+    var degrees;
+
+    var transX = 0;
+    var transY = 0;
+    var scale = 1;
+
+    var xdir = false;
+    var transpol = false;
+
+
+    //-----------------Functions------------------------
+
+
+    function points(x, y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    function degrees_to_radians(degrees) {
+
+        degrees = document.getElementById("degrees").value;
+        var pi = Math.PI;
+        degrees = degrees * (2 * pi / 360);
+
+        return degrees;
+    }
+
+    function newP() {
+
+        if (start) {
+
+            list_points = [];
+            drawBackground();
+
+        }
+        canvas.addEventListener("mousedown", function (e) {
+            //get mouse position
+            if (drawP) {
+                list_points.push(new points(e.clientX - canvas.offsetLeft, e.clientY - canvas.offsetTop));
+                draw();
+
+            }
+
+        });
+
+    }
+
+
+    function draw() {
+        drawBackground();
+        ctx.beginPath();
+        ctx.moveTo(list_points[0].x, list_points[0].y); //Begin
+        //draw lines
+        ctx.strokeStyle = "white";
+        for (var i = 0; i < list_points.length; i++) {
+            var p = list_points[i];
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+        }
+        ctx.lineTo(list_points[0].x, list_points[0].y); //Begin
+
+        ctx.stroke();
+        ctx.closePath();
+
+
+    }
+
+    function drawBackground() {
+        ctx.beginPath();
+        //clear the background
+        ctx.clearRect(0, 0, 690, 500);
+
+        // Set the fill style and draw a rectangle
+
+        //draw the background
+        ctx.fillRect(0, 0, 690, 500);
+        ctx.closePath();
+    }
+
+    function rotate() {
+
+        start = false;
+        drawP = false;
+        //pivot point for rotasjon
+        var firstX = list_points[0].x;
+        var firstY = list_points[0].y;
+
+        for (var i = 1; i < list_points.length; i++) {
+
+
+            var x = list_points[i].x;
+            var y = list_points[i].y;
+            degrees = degrees_to_radians(degrees);
+            console.log(degrees);
+
+            var newX = firstX + (x - firstX) * Math.cos(degrees) - (y - firstY) * Math.sin(degrees);
+            var newY = firstY + (x - firstX) * Math.sin(degrees) + (y - firstY) * Math.cos(degrees);
+
+            list_points[i].x = newX;
+            list_points[i].y = newY;
+
+
+        }
+
+        draw();
+
+    }
+
+    function scaling() {
+
+
+        window.addEventListener('wheel', function (event) {
+            if (event.deltaY < 0) {
+                if (scale <= 1) {
+                    scale = 1;
+                }
+                scale += 0.1;
+                console.log(scale);
+                console.log('scrolling up');
+            } else if (event.deltaY > 0) {
+                if (scale >= 1) {
+                    scale = 1;
+                }
+                scale -= 0.1;
+                console.log('scrolling down');
+                console.log(scale);
+
+
+            }
+            if (1.4 >= scale >= 0.4) {
+                var firstX = list_points[0].x;
+                var firstY = list_points[0].y;
+
+                for (var i = 1; i < list_points.length; i++) {
+
+                    var x = list_points[i].x;
+                    var y = list_points[i].y;
+
+                    var newX = x * scale + firstX * (1 - scale);
+                    var newY = y * scale + firstY * (1 - scale);
+
+
+                    list_points[i].x = newX;
+                    list_points[i].y = newY;
+                    draw();
+                }
+
+            } else {
+                scale = 1;
+                console.log("is small");
+            }
+        });
+
+
+    }
+
+
+    function trans() {
+        start = false;
+        if (transpol) {
+            $("input[type='button']").click(function () {
+
+                switch (this.id) {
+                    case 'up' :
+                        xdir = false;
+                        if (transY > 0) {
+                            transY = 0;
+                        }
+                        transY -= 1;
+                        break;
+                    case 'down' :
+                        xdir = false;
+                        if (transY <= 0) {
+                            transY = 0;
+                        }
+                        transY += 1;
+                        break;
+                    case 'right' :
+                        xdir = true;
+                        if (transX > 0) {
+                            transX = 0;
+                        }
+                        transX += 2;
+
+                        break;
+                    case 'left' :
+                        xdir = true;
+                        if (transX < 0) {
+                            transX = 0;
+                        }
+                        transX -= 2;
+                        break;
+                }
+                if (xdir) {
+                    for (var i = 0; i < list_points.length; i++) {
+                        var x = list_points[i].x;
+                        var newX = x + transX;
+
+                        list_points[i].x = newX;
+
+                    }
+                } else {
+
+                    for (var i = 0; i < list_points.length; i++) {
+
+                        var y = list_points[i].y;
+                        var newY = y + transY;
+
+                        list_points[i].y = newY;
+
+                    }
+                }
+
+                draw();
+            });
+
+        }
+
+
+    }
+
+
+    //---------------------Main--------------------
+
+    $("input[type='button']").click(function () {
+        switch (this.id) {
+            case 'newpoly' :
+                start = true;
+                drawP = true;
+                transpol = false;
+                newP();
+                break;
+            case 'newtrans' :
+                start = false;
+                drawP = false;
+                transpol = true;
+                transX = 0;
+                transY = 0;
+                trans();
+                break;
+
+            case 'draw' :
+                transpol = false;
+                start = false;
+                drawP = true;
+
+                newP();
+                break;
+
+            case 'newscale' :
+                scale = 1;
+                transpol = false;
+                drawP = false;
+                start = false;
+                scaling();
+                break;
+        }
+    });
+
+    start = true;
+    drawP = true;
+    transpol = false;
+    newP();
+
+</script>
+
+
+</body>
+</html>

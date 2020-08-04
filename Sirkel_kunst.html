@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sirkel</title>
+
+</head>
+<body>
+
+<form onchange="getPoints()">
+    <label> Antall pukter </label>
+    <select id="antall">
+        <option>8</option>
+        <option>10</option>
+        <option>12</option>
+        <option>14</option>
+        <option>16</option>
+        <option>18</option>
+        <option>24</option>
+        <option>28</option>
+        <option>36</option>
+        <option>42</option>
+        <option>58</option>
+        <option>60</option>
+        <option>64</option>
+        <option>100</option>
+        <option>300</option>
+        <option>600</option>
+        <option>900</option>
+        <option>1200</option>
+        <option>1800</option>
+        <option>3200</option>
+
+
+    </select>
+
+</form>
+
+<form onchange="getPoints()">
+    <label> x til kx </label>
+    <select id="antallK">
+        <option>1</option>
+        <option>2</option>
+        <option>4</option>
+        <option>6</option>
+        <option>100</option>
+        <option>400</option>
+        <option>800</option>
+        <option>1600</option>
+        <option>3200</option>
+
+    </select>
+</form>
+<canvas id="MyCanvas" width="600" height="600" style="border: 1px solid black; ">
+
+</canvas>
+<script type="text/javascript">
+
+    function points(X, Y) {
+        this.X = X;
+        this.Y = Y;
+    }
+
+    let canvas = document.getElementById("MyCanvas");
+    let ctx = canvas.getContext("2d");
+    var list_points = [];
+
+
+    function getPoints() {
+        var antallPunkter = document.getElementById("antall").value; //Input option from the user
+        var vinkel = 2 * Math.PI / antallPunkter; //finds the angle based on the user option
+        list_points = []; //clear the array every time the user selects another option
+
+        //Find the Points based on the user performance
+        for (var v = 0; v <= 2 * Math.PI; v += vinkel) { //increases based on the angle
+            x = 300 * Math.cos(v) + 300;
+            y = 300 * Math.sin(v) + 300;
+            list_points.push(new points(x, y)); //push the new points into the list
+        }
+        drawCircle();
+        drawLines();
+    }
+
+
+    function drawCircle() {
+
+        ctx.beginPath();
+        ctx.moveTo(list_points[0], list_points[0]); //Begin
+        //draw lines
+        for (var i = 1; i < list_points.length; i++) {
+            var p = list_points[i];
+            ctx.lineTo(p.X, p.Y);
+            ctx.stroke();
+        }
+        ctx.closePath();
+
+
+    }
+
+    function drawLines() {
+
+        var antallK = document.getElementById("antallK").value; //Input option from the user
+        //draw lines
+        var length = list_points.length;
+
+        for (var i = 0; i < (length); i++) {
+
+            ctx.moveTo(list_points[i].X, list_points[i].Y); // points in the circle. the point where the line should start
+
+            if (i < length / antallK) {
+                ctx.lineTo(list_points[i * antallK].X, list_points[i * antallK].Y);
+            } else {
+                ctx.lineTo(list_points[i * antallK % length].X, list_points[i * antallK % length].Y);
+
+
+            }
+
+
+            ctx.stroke();
+
+
+        }
+        ctx.closePath();
+        //clear and draw the rectangle
+        ctx.clearRect(0, 0, 600, 600);
+
+        //rectangle
+        ctx.fillStyle = "yellow";
+        ctx.fillRect(0, 0, 600, 600);
+        ctx.stroke();
+
+
+    }
+
+
+    //----------------------------------Main-------------------------------------------------------------------------------
+    getPoints();
+
+
+</script>
+
+</body>
+</html>

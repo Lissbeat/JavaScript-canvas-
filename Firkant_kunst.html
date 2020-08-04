@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Firkant3</title>
+</head>
+<body>
+<canvas id="myCanvas" width="600" height="600" style="border: 1px solid black; background-color: orangered"></canvas>
+<script type="text/javascript">
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+let squares = 16;
+let innersquares = 20;
+
+var arrX = [
+    [0, 0, 150, 150],
+    [150, 150, 300, 300],
+    [300, 300, 450, 450],
+    [450, 450, 600, 600],
+    [0, 0, 150, 150],
+    [150, 150, 300, 300],
+    [300, 300, 450, 450],
+    [450, 450, 600, 600],
+    [0, 0, 150, 150],
+    [150, 150, 300, 300],
+    [300, 300, 450, 450],
+    [450, 450, 600, 600],
+    [0, 0, 150, 150],
+    [150, 150, 300, 300],
+    [300, 300, 450, 450],
+    [450, 450, 600, 600]];
+
+
+
+var arrY = [
+    [0, 150, 150, 0],
+    [0, 150, 150, 0],
+    [0, 150, 150, 0],
+    [0, 150, 150, 0],
+    [150, 300, 300, 150],
+    [150, 300, 300, 150],
+    [150, 300, 300, 150],
+    [150, 300, 300, 150],
+    [300, 450, 450, 300],
+    [300, 450, 450, 300],
+    [300, 450, 450, 300],
+    [300, 450, 450, 300],
+    [450, 600, 600, 450],
+    [450, 600, 600, 450],
+    [450, 600, 600, 450],
+    [450, 600, 600, 450]
+];
+
+
+let p = 0.1;
+let oldX;
+let oldY;
+
+
+// ----------------Main ----------------------------------------
+
+
+
+
+for (let i = 0; i < squares; i++) {
+    draw(arrX[i], arrY[i]);
+    getP();
+}
+
+
+function getP() {
+    if (p === 0.1) {
+        p = 0.9;
+    } else {
+        p = 0.1
+    }
+}
+
+function draw(arrx, arry) {
+
+    ctx.strokeStyle = "black";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(arrx[0], arry[0]);
+    ctx.lineTo(arrx[1], arry[1]);
+    ctx.lineTo(arrx[2], arry[2]);
+    ctx.lineTo(arrx[3], arry[3]);
+    ctx.lineTo(arrx[0], arry[0]);
+    ctx.stroke();
+
+
+    for (let count = 0; count < innersquares; count++) {
+        ctx.beginPath();
+        oldX = arrx[0];
+        oldY = arry[0];
+        for (let counter = 0; counter < 4; counter++) {
+
+            if (counter !== 3) {
+                arrx[counter] = (1 - p) * arrx[counter] + p * arrx[counter + 1];
+                arry[counter] = (1 - p) * arry[counter] + p * arry[counter + 1];
+            } else {
+                arrx[counter] = (1 - p) * arrx[counter] + p * oldX;
+                arry[counter] = (1 - p) * arry[counter] + p * oldY;
+            }
+
+        }
+        ctx.moveTo(arrx[0], arry[0]);
+        ctx.lineTo(arrx[1], arry[1]);
+        ctx.lineTo(arrx[2], arry[2]);
+        ctx.lineTo(arrx[3], arry[3]);
+        ctx.lineTo(arrx[0], arry[0]);
+        ctx.stroke();
+
+
+    }
+
+}
+
+
+</script>
+
+</body>
+</html>
